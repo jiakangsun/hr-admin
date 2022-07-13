@@ -2,7 +2,7 @@
 const path = require('path')
 const defaultSettings = require('./src/settings.js')
 
-function resolve(dir) {
+function resolve (dir) {
   return path.join(__dirname, dir)
 }
 
@@ -35,6 +35,20 @@ module.exports = {
     overlay: {
       warnings: false,
       errors: true
+    },
+    // 反向代理
+    proxy: {
+      // 只要是axios发请求的时候，前面是以/abc开头的，就会被这块匹配，就会自动帮我们做反向代理
+      // 所有的当前这个人资接口url都是以api开头的
+      '/abc': {
+        target: 'http://ihrm.itheima.net/',
+        changeOrigin: true,
+        pathRewrite: {
+          // 相当于是在做replace替换操作
+          // 为什么要写^ 如果不写的话api接口只要包含abc 就也会被替换成''
+          '^/abc': ''
+        }
+      }
     }
     // 因为我们真正的项目有自己的接口服务器 不用模拟接口 所以用不上mock.js
     // before: require('./mock/mock-server.js')
@@ -49,7 +63,7 @@ module.exports = {
       }
     }
   },
-  chainWebpack(config) {
+  chainWebpack (config) {
     // it can improve the speed of the first screen, it is recommended to turn on preload
     config.plugin('preload').tap(() => [
       {
@@ -88,7 +102,7 @@ module.exports = {
             .plugin('ScriptExtHtmlWebpackPlugin')
             .after('html')
             .use('script-ext-html-webpack-plugin', [{
-            // `runtime` must same as runtimeChunk name. default is `runtime`
+              // `runtime` must same as runtimeChunk name. default is `runtime`
               inline: /runtime\..*\.js$/
             }])
             .end()
